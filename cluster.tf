@@ -1,7 +1,7 @@
 # Create keypair
 resource "aws_key_pair" "k8s_key" {
   key_name = var.key_name
-  public_key = file("D://TaiLieu//HKVII//devsecops//infra-ops//kubeadm-ec2-automate-main//id_rsa.pub")
+  public_key = file("${path.module}/id_rsa.pub")
 }
 
 # Create Controlplane (Master)
