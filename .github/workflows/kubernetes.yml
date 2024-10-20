@@ -58,10 +58,14 @@ jobs:
     - name: Terraform Plan and Apply
       id: plan_apply
       run: |
-        terraform plan -no-color
+        terraform plan -out=plan.out -no-color
         if [ "${{ github.ref }}" == "refs/heads/main" ] && [ "${{ github.event_name }}" == "push" ]; then
-          terraform destroy -auto-approve -input=false
+          terraform apply -auto-approve "plan.out"
+        else
+          terraform plan -destroy -out=destroy-plan.out
+          terraform apply -auto-approve "destroy-plan.out"
         fi
+    
       
    
       
