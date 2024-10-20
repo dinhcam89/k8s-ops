@@ -21,8 +21,8 @@ variable "ami" {
   description = "amazon machine image"
   type        = map(string)
   default = {
-    master = "ami-07b36ea9852e986ad"
-    worker-node = "ami-07b36ea9852e986ad"
+    master = "ami-0866a3c8686eaeeba"
+    worker-node = "ami-0866a3c8686eaeeba"
   }
 }
 
