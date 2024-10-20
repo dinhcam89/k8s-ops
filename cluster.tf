@@ -1,7 +1,7 @@
 # Create keypair
 resource "aws_key_pair" "k8s_key" {
   key_name = var.key_name
-  public_key = file("C:\\Users\\lexus\\.ssh\\id_rsa.pub")
+  public_key = "id_rsa.pub"
 }
 
 # Create Controlplane (Master)
