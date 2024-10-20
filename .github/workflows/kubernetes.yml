@@ -1,0 +1,107 @@
+name: Automate Provisioning of kubeadm K8S Cluster
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+      
+permissions:
+      id-token: write # required for aws oidc connection
+      contents: read   # required for actions/checkout
+      pull-requests: write # for GitHub bot to comment PR
+
+jobs:
+  terraform-provision:
+    runs-on: ubuntu-latest
+    env:
+      TF_VAR_github_workspace: ${{ github.workspace }}
+      TF_LOG: INFO
+    defaults:
+      run:
+        shell: bash
+        working-directory: ${{ github.workspace }}
+    
+    steps:
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        role-to-assume: ${{ secrets.AWS_ROLE}}
+        aws-region: ${{ secrets.AWS_REGION }}
+        role-session-name: GitHub-OIDC-K8S-cluster
+
+    - name: Checkout repository
+      uses: actions/checkout@v1
+
+
+    # Install terraform 
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: 1.5.5
+
+   
+    ## Run terraform commands
+    - name: Terraform fmt
+      id: fmt
+      run: terraform fmt 
+
+    - name: Terraform Init
+      id: init
+      run: terraform init 
+        
+    - name: Terraform Validate
+      id: validate
+      run: terraform validate -no-color 
+
+    - name: Terraform Plan and Apply
+      id: plan_apply
+      run: |
+        terraform plan -no-color
+        if [ "${{ github.ref }}" == "refs/heads/main" ] && [ "${{ github.event_name }}" == "push" ]; then
+          terraform destroy -auto-approve -input=false
+        fi
+      
+   
+      
+  ## Bootstrap the kubeadm cluster 
+  ansible-terraform-init:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_WORKSPACE: ${{ github.workspace }}
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+    needs: terraform-provision
+    
+    steps:
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        role-to-assume: ${{ secrets.AWS_ROLE}}
+        aws-region: ${{ secrets.AWS_REGION }}
+        role-session-name: GitHub-OIDC-K8S-cluster
+
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Install community.general collection and cloud.terraform
+      run: |
+        ansible-galaxy collection install community.general
+        ansible-galaxy collection install cloud.terraform
+
+    - name: Create inventory.yml
+      run: |
+        cat <<EOF > inventory.yml
+        ---
+        plugin: cloud.terraform.terraform_provider
+        EOF
+    
+
+    - name: Set up SSH                                    #### required to avoid bad permissions error ###
+      run: |
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > id_rsa  
+        chmod 400 id_rsa                                       
+    
+    - name: Run Playbook to set up Kubeadm cluster
+      run: ansible-playbook -i inventory.yml playbook.yml
