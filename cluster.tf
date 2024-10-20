@@ -1,7 +1,7 @@
 # Create keypair
 resource "aws_key_pair" "k8s_key" {
   key_name = var.key_name
-  public_key = "id_rsa.pub"
+  public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDn1s0XP3CjT/qMt7Hld5bnBZKbxhoEA7hvjy/Z91QVSZ1BTfo9oFPqxsIUrUNWvJCZ8N7A7uIHCT5oo5/8ATbnRETronkyqxj4FGYRXoMM4UvfjvBpa4H5HQ/ud0/c8cmvzAq9zygaayynP2/ogR2e5Ci+smuHMpJ8Ccd5DLZLvRECADKZ77oCzJ+MghfowYZyrxM4c0C0/vMZsBazxYijT/+tl9AxCrwjilsBZZNzamYTBYfI7JSqddOXKUCPS4r1HUFRHajWjJs7js4pap/F/yPTL72s/tCum8pb2a9kHm5YpTQNfLYUUlkeF/eog+ieBOlkHrcD+NqKDKtlmv/Bv8NLfVVRXO36vR+XpAdnZJhKq45DeP0AAs/9RDhmdRbH40hehDoy+o06hHcLUhPY8+RvKqfRscB6WZtYhUqh9r5digmQ39kVTSFcl4CF8pSnPXIKk4gQ+MgOA1Rc7DNi2ramXDSsjUdim0Jau0wBD+3cwj7zHosYuT+56+DfKMNu2lZIJ9HGTh9h4RLfmnQ8eQ+aG4h7z9IkG/extW+yTk97nPGEBqft+XbfI0cuEWd6KE7GuEfsWZzutmM/H634iEv5/EC4Tm4wJmstX9/OFyyO6Xwc6lMGszaCf8FMxgHyxuza9D0hZNj9sASKqXqz6nm+U0Qbm65Iu9SJgxAu6w== cam@MSI"
 }
 
 # Create Controlplane (Master)
