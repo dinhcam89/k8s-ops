@@ -1,18 +1,7 @@
 # Create keypair
-resource "local_file" "private_ec2_key" {
-    filename                = "private_ec2_key.pem"
-    file_permission         = "600"
-    directory_permission    = "700"
-    content                 = tls_private_key.ssh.private_key_pem
-}
-
 resource "aws_key_pair" "k8s_key" {
   key_name = var.key_name
-  public_key = tls_private_key.ssh.public_key_openssh
-}
-resource "tls_private_key" "ssh" {
-  algorithm = "RSA"
-  rsa_bits  = 4096
+  public_key = file("id_rsa.pub")
 }
 
 # Create Controlplane (Master)
